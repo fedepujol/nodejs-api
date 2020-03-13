@@ -1,12 +1,12 @@
-var successMessage = {
+const successMessage = {
     status: 'success'
 }
 
-var errorMessage = {
+const errorMessage = {
     status: 'error'
 }
 
-var status = {
+const status = {
     success: 200,
     created: 201,
     noContent: 204,

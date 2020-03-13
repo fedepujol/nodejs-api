@@ -1,13 +1,20 @@
 import dbQuery from '../db/query'
+import {
+    status,
+    errorMessage,
+    successMessage
+} from '../utils/status'
 
 async function getUsers(request, response) {
     const q = 'SELECT * FROM users ORDER BY id ASC'
 
     try {
         var data = await dbQuery(q)
-        response.status(200).json(data.rows)
+        successMessage.data = data.rows
+        return response.status(status.success).json(successMessage)
     } catch (error) {
-        console.log(error)
+        errorMessage.message = error
+        return response.status(status.errorServer).send(errorMessage)
     }
 }
 
@@ -24,9 +31,11 @@ async function createUser(request, response) {
 
     try {
         const data = await dbQuery(q, value)
-        response.status(201).json(data.rows)
+        successMessage.message = "User created"
+        return response.status(status.created).send(successMessage)
     } catch (error) {
-        return response.status(500).send(error)
+        errorMessage.message = error
+        return response.status(status.errorServer).send(errorMessage)
     }
 }
 
@@ -53,9 +62,11 @@ async function updateUser(request, response) {
 
     try {
         const data = await dbQuery(q, params)
-        return response.status(200).json(data.rows)
+        successMessage.message = "User updated"
+        return response.status(status.success).send(successMessage)
     } catch (error) {
-        return response.status(500).send(error)
+        errorMessage.message = error
+        return response.status(status.errorServer).send(errorMessage)
     }
 
 }
@@ -67,9 +78,11 @@ async function deleteUser(request, response) {
 
     try {
         const data = await dbQuery(q, id)
-        response.status(200).json(data.rows)
+        successMessage.message = "User deleted"
+        return response.status(status.success).send(successMessage)
     } catch (error) {
-        return response.status(500).send(error)
+        errorMessage.message = error
+        return response.status(status.errorServer).send(errorMessage)
     }
 }
 
