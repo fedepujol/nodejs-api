@@ -4,13 +4,13 @@
 Api ejemplo en NodeJS que se comunica con una base PostgreSQL.
 
 ### Estructura
-´´´
+```
 |-app
     |- controllers
     |- db
     |- routes
     |- utils
-´´´
+```
 
 ### Herramientas
 Se utilizaron las siguientes herramientas:
