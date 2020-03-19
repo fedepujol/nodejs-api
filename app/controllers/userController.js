@@ -1,18 +1,18 @@
-import dbQuery from '../db/query'
 import {
     status,
-    errorMessage,
-    successMessage
+    SuccessMessage,
+    ErrorMessage
 } from '../utils/status'
+import UserService from '../services/UserService'
 
 class UserController {
     constructor() {}
-    async getUsers(request, response) {
-        const q = 'SELECT * FROM users ORDER BY id ASC'
-
+    async allUsers(request, response) {
+        const successMessage = new SuccessMessage()
+        const errorMessage = new ErrorMessage()
         try {
-            var data = await dbQuery(q)
-            successMessage.data = data.rows
+            var data = await UserService.allUsers()
+            successMessage.data = data
             return response.status(status.success).json(successMessage)
         } catch (error) {
             errorMessage.message = error
@@ -20,19 +20,33 @@ class UserController {
         }
     }
 
-    async createUser(request, response) {
-        const q = 'INSERT INTO users (name, email) VALUES ($1, $2)'
-
-        var name = request.body.name
-        var email = request.body.email
-
-        const value = [
-            name,
-            email
-        ]
+    async getUser(request, response) {
+        const successMessage = new SuccessMessage()
+        const errorMessage = new ErrorMessage()
+        const id = request.params.id
 
         try {
-            const data = await dbQuery(q, value)
+            var data = await UserService.oneUser(id)
+            if (data) {
+                successMessage.data = data
+                return response.status(status.success).json(successMessage)
+            } else {
+                errorMessage.message = error
+                return response.status(status.success).send(errorMessage)
+            }
+        } catch (error) {
+            errorMessage.message = error
+            return response.status(status.errorServer).send(errorMessage)
+        }
+    }
+
+    async createUser(request, response) {
+        const newUser = request.body
+        const successMessage = new SuccessMessage()
+        const errorMessage = new ErrorMessage()
+
+        try {
+            const data = await UserService.addUser(newUser)
             successMessage.message = "User created"
             return response.status(status.created).send(successMessage)
         } catch (error) {
@@ -42,28 +56,18 @@ class UserController {
     }
 
     async updateUser(request, response) {
+        const successMessage = new SuccessMessage()
+        const errorMessage = new ErrorMessage()
 
-        if (request.method == 'PUT') {
-            console.log('PUT rece')
-        }
-
-        const q = 'UPDATE users SET name = $1, email = $2 WHERE id = $3'
-
-        const id = parseInt(request.params.id)
-
-        const {
-            name,
-            email
-        } = request.body
-
-        const params = [
-            name,
-            email,
-            id
-        ]
+        const userUpdated = request.body
+        const unId = parseInt(request.params.id)
 
         try {
-            const data = await dbQuery(q, params)
+            const userToUpdate = UserService.oneUser(unId)
+            if (userToUpdate) {
+                await UserService.updateUser(userUpdated, unId)
+            }
+
             successMessage.message = "User updated"
             return response.status(status.success).send(successMessage)
         } catch (error) {
@@ -74,13 +78,21 @@ class UserController {
     }
 
     async deleteUser(request, response) {
-        const q = 'DELETE FROM users WHERE id = $1'
+        const successMessage = new SuccessMessage()
+        const errorMessage = new ErrorMessage()
 
         const id = parseInt(request.params.id)
-
+        console.log(id)
         try {
-            const data = await dbQuery(q, id)
-            successMessage.message = "User deleted"
+            const userToDelete = await UserService.oneUser(id)
+            if (userToDelete) {
+                const userDeleted = await UserService.deleteUser(id)
+            } else {
+                errorMessage.message = 'User not found'
+                return response.status(status.notFound).send(errorMessage)
+            }
+
+            successMessage.message = 'User deleted successfully!'
             return response.status(status.success).send(successMessage)
         } catch (error) {
             errorMessage.message = error
