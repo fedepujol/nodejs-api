@@ -4,12 +4,28 @@
 Api ejemplo en NodeJS que se comunica con una base PostgreSQL.
 
 ### Estructura
+#### Master
 ```
 |-app
     |- controllers
     |- db
     |- routes
     |- utils
+```
+
+#### ORM
+```
+|-app
+    |- controllers
+    |- services
+    |- routes
+    |- utils
+    |- domain
+|-server
+    |- config
+    |- models
+    |- seeders
+    |- migrations
 ```
 
 ### Herramientas
@@ -25,5 +41,24 @@ Se utilizaron las siguientes herramientas:
 - Body Parser
     - Parsea los cuerpos de las llamadas.
 
-### Branch ORM
-Migrar las query en hardcode usando Sequelize.
+### Branches
+
+#### Master
+Se habla con la base directamente desde el UserController por medios de queries hardcodeadas:
+
+```sql
+SELECT * FROM users ORDER BY id ASC;
+```
+
+#### ORM
+Se emplea el uso de sequelize para hablar con la base. Se crea el UserService como medio de traspaso de datos.
+
+```js
+    async allUsers() {
+        try {
+            return await User.findAll()
+        } catch (error) {
+            throw error
+        }
+    }
+```
